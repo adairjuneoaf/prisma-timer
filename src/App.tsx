@@ -1,7 +1,16 @@
-export const App = () => {
+import React from 'react'
+import { ThemeProvider } from 'styled-components'
+import { GlobalStyle } from './styles/global'
+import { defaultTheme } from './styles/themes/default'
+
+export const App: React.FC = () => {
   return (
-    <div>
-      <h1>Prima Timer</h1>
-    </div>
-  );
-};
+    <ThemeProvider theme={defaultTheme}>
+      <div>
+        <h1>Prisma Timer</h1>
+      </div>
+
+      <GlobalStyle />
+    </ThemeProvider>
+  )
+}
