@@ -140,3 +140,21 @@ export const StartCountdownButton = styled.button`
     background-color: ${(props) => props.theme['green-700']};
   }
 `
+
+export const ErrorContainer = styled.div`
+  width: 100%;
+  min-height: 6rem;
+  padding: 1rem 2rem;
+
+  pointer-events: none;
+
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  span {
+    font-size: 0.85rem;
+    color: ${(props) => props.theme['red-500']};
+  }
+`
