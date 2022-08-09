@@ -2,17 +2,18 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as zod from 'zod'
-import { FiPlay } from 'react-icons/fi'
+import { FiPlay, FiStopCircle } from 'react-icons/fi'
 import { v4 as UUID } from 'uuid'
 import {
   TaskInput,
   Separator,
   HomeContainer,
   FormContainer,
+  ErrorContainer,
   CountdownContainer,
   MinutesAmountInput,
+  StopCountdownButton,
   StartCountdownButton,
-  ErrorContainer,
 } from './styles'
 import { differenceInSeconds } from 'date-fns'
 
@@ -34,6 +35,8 @@ interface Cycle {
   task: string
   minutesAmount: number
   startedDate: Date
+  interruptedDate?: Date
+  completedDate?: Date
 }
 
 export const Home: React.FC = () => {
@@ -65,6 +68,20 @@ export const Home: React.FC = () => {
     reset()
   }
 
+  const interruptCurrentCycle = () => {
+    setNewCycle((prevState) =>
+      prevState.map((cycle) => {
+        if (cycle.id === activeCycleId) {
+          return { ...cycle, interruptedDate: new Date() }
+        } else {
+          return cycle
+        }
+      }),
+    )
+
+    setNewActiveCycleId(null)
+  }
+
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
   const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
@@ -77,12 +94,34 @@ export const Home: React.FC = () => {
   const seconds = String(secondsTotal).padStart(2, '0')
 
   useEffect(() => {
+    let interval: number
+
     if (activeCycle) {
-      setInterval(() => {
-        setAmountSecondsPassed(differenceInSeconds(new Date(), activeCycle.startedDate))
+      interval = setInterval(() => {
+        const secondsPassed = differenceInSeconds(new Date(), activeCycle.startedDate)
+
+        if (secondsPassed >= totalSeconds) {
+          setNewCycle((prevState) =>
+            prevState.map((cycle) => {
+              if (cycle.id === activeCycleId) {
+                return { ...cycle, completedDate: new Date() }
+              } else {
+                return cycle
+              }
+            }),
+          )
+
+          setAmountSecondsPassed(totalSeconds)
+          setNewActiveCycleId(null)
+          clearInterval(interval)
+        } else {
+          setAmountSecondsPassed(secondsPassed)
+        }
       }, 1000)
     }
-  }, [activeCycle])
+
+    return () => clearInterval(interval)
+  }, [activeCycle, totalSeconds, activeCycleId])
 
   return (
     <HomeContainer>
@@ -95,6 +134,7 @@ export const Home: React.FC = () => {
             list='taskSuggestions'
             placeholder='Dê um nome para essa tarefa'
             {...register('task')}
+            disabled={!!activeCycleId}
           />
           <datalist id='taskSuggestions'>
             <option value='Tarefa 01' />
@@ -112,6 +152,7 @@ export const Home: React.FC = () => {
             placeholder='00'
             list='minutesOptions'
             {...register('minutesAmount', { valueAsNumber: true })}
+            disabled={!!activeCycleId}
           />
           <datalist id='minutesOptions'>
             <option value={5} />
@@ -132,10 +173,17 @@ export const Home: React.FC = () => {
           <span>{seconds[1]}</span>
         </CountdownContainer>
 
-        <StartCountdownButton type='submit' disabled={isSubmitting}>
-          <FiPlay size={24} />
-          Começar
-        </StartCountdownButton>
+        {activeCycle ? (
+          <StopCountdownButton type='button' onClick={interruptCurrentCycle}>
+            <FiStopCircle size={24} />
+            Interromper
+          </StopCountdownButton>
+        ) : (
+          <StartCountdownButton type='submit' disabled={isSubmitting}>
+            <FiPlay size={24} />
+            Começar
+          </StartCountdownButton>
+        )}
       </form>
 
       <ErrorContainer>
