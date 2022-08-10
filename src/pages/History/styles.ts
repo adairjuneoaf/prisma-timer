@@ -44,21 +44,43 @@ export const HistoryList = styled.div`
         padding-right: 1.5rem;
       }
     }
+  }
+`
 
-    td {
-      background-color: ${(props) => props.theme['gray-700']};
-      border-top: 4px solid ${(props) => props.theme['gray-800']};
-      padding: 1rem;
-      font-size: 0.875rem;
-      line-height: 1.6;
+export const DataBody = styled.tbody`
+  td {
+    background-color: ${(props) => props.theme['gray-700']};
+    border-top: 4px solid ${(props) => props.theme['gray-800']};
+    padding: 1rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
 
-      &:first-child {
-        width: 50%;
-        padding-left: 1.5rem;
-      }
+    &:first-child {
+      width: 50%;
+      padding-left: 1.5rem;
+    }
 
-      &:last-child {
-        padding-right: 1.5rem;
+    &:last-child {
+      padding-right: 1.5rem;
+    }
+  }
+`
+
+export const EmptyBody = styled.tbody`
+  td {
+    div {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+
+      padding-top: 3.5rem;
+
+      h3 {
+        font-size: 0.875rem;
+        color: ${(props) => props.theme['gray-500']};
+
+        padding-top: 1.5rem;
       }
     }
   }
