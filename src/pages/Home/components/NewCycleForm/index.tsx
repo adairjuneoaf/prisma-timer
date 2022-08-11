@@ -92,7 +92,12 @@ export const NewCycleForm: React.FC = () => {
         <Countdown />
 
         {activeCycle ? (
-          <StopCountdownButton type='button' onClick={interruptCurrentCycle}>
+          <StopCountdownButton
+            type='button'
+            onClick={() => {
+              interruptCurrentCycle(activeCycle.id)
+            }}
+          >
             <FiStopCircle size={24} />
             Interromper
           </StopCountdownButton>

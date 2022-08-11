@@ -1,28 +1,17 @@
 import { createContext, PropsWithChildren, useReducer } from 'react'
 import { v4 as UUID } from 'uuid'
+import { ActionTypes } from '../reducers/cycles/actions'
 
-interface Cycle {
-  id: string
-  task: string
-  minutesAmount: number
-  startedDate: Date
-  interruptedDate?: Date
-  completedDate?: Date
-}
-
-interface CyclesReducerState {
-  cycles: Array<Cycle>
-  activeCycleId: string | null
-}
+import { Cycle, CyclesReducer } from '../reducers/cycles/reducer'
 
 interface CyclesContextProps {
   cycles: Array<Cycle>
   activeCycle: Cycle | undefined
   totalSeconds: number
   activeCycleId: string | null
-  createNewCycle: (data: NewCycleFormData) => void
-  completedCurrentCycle: () => void
-  interruptCurrentCycle: () => void
+  createNewCycle: (cycleData: NewCycleFormData) => void
+  completedCurrentCycle: (cycleId: string) => void
+  interruptCurrentCycle: (cycleId: string) => void
 }
 
 type NewCycleFormData = {
@@ -33,55 +22,10 @@ type NewCycleFormData = {
 export const CyclesContext = createContext({} as CyclesContextProps)
 
 export const CyclesContextProvider = ({ children }: PropsWithChildren) => {
-  const [CyclesState, dispatch] = useReducer(
-    (state: CyclesReducerState, action: any) => {
-      if (action.type === 'ADD_CYCLE') {
-        return {
-          ...state,
-          cycles: [...state.cycles, action.payload.newCycleData],
-          activeCycleId: action.payload.newCycleData.id,
-        }
-      }
-
-      if (action.type === 'INTERRUPT_CYCLE') {
-        const newStateCycles = state.cycles.map((cycle) => {
-          if (cycle.id === action.payload.activeCycleId) {
-            return { ...cycle, interruptedDate: new Date() }
-          } else {
-            return cycle
-          }
-        })
-
-        return {
-          ...state,
-          cycles: newStateCycles,
-          activeCycleId: null,
-        }
-      }
-
-      if (action.type === 'COMPLETED_CYCLE') {
-        const newStateCycles = state.cycles.map((cycle) => {
-          if (cycle.id === action.payload.activeCycleId) {
-            return { ...cycle, completedDate: new Date() }
-          } else {
-            return cycle
-          }
-        })
-
-        return {
-          ...state,
-          cycles: newStateCycles,
-          activeCycleId: null,
-        }
-      }
-
-      return state
-    },
-    {
-      cycles: [],
-      activeCycleId: null,
-    },
-  )
+  const [CyclesState, dispatch] = useReducer(CyclesReducer, {
+    cycles: [],
+    activeCycleId: null,
+  })
 
   const { cycles, activeCycleId } = CyclesState
 
@@ -89,36 +33,36 @@ export const CyclesContextProvider = ({ children }: PropsWithChildren) => {
 
   const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
 
-  const createNewCycle = (data: NewCycleFormData) => {
-    const newCycleData: Cycle = {
+  const createNewCycle = (cycleData: NewCycleFormData) => {
+    const cycle: Cycle = {
       id: UUID(),
-      task: data.task,
-      minutesAmount: data.minutesAmount,
+      task: cycleData.task,
+      minutesAmount: cycleData.minutesAmount,
       startedDate: new Date(),
     }
 
     dispatch({
-      type: 'ADD_CYCLE',
+      type: ActionTypes.ADD_CYCLE,
       payload: {
-        newCycleData,
+        cycle,
       },
     })
   }
 
-  const completedCurrentCycle = () => {
+  const completedCurrentCycle = (cycleId: string) => {
     dispatch({
-      type: 'COMPLETED_CYCLE',
+      type: ActionTypes.COMPLETED_CYCLE,
       payload: {
-        activeCycleId,
+        cycleId,
       },
     })
   }
 
-  const interruptCurrentCycle = () => {
+  const interruptCurrentCycle = (cycleId: string) => {
     dispatch({
-      type: 'INTERRUPT_CYCLE',
+      type: ActionTypes.INTERRUPT_CYCLE,
       payload: {
-        activeCycleId,
+        cycleId,
       },
     })
   }
