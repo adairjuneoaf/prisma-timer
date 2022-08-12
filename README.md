@@ -1,12 +1,8 @@
 <!-- <p align="center">
   <img alt="PrismaTimer" src=".github/logo.svg" width="96px">
 </p> -->
-
-<h1 align="center">
-    <img alt="PrismaTimer" src=".github/capa.png" />
-</h1>
-
-<br>
+<img alt="PrismaTimer" src=".github/capa.png" />
+</br>
 
 ## 💻 Projeto
 
