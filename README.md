@@ -6,7 +6,6 @@
     <img alt="PrismaTimer" src=".github/capa.png" />
 </h1>
 
-<br>
 
 ## 💻 Projeto
 
