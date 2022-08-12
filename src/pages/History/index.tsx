@@ -39,7 +39,7 @@ export const History: React.FC = () => {
                 <td>{cycle.task}</td>
                 <td>{cycle.minutesAmount} minutos</td>
                 <td>
-                  {formatDistanceToNow(cycle.startedDate, {
+                  {formatDistanceToNow(new Date(cycle.startedDate), {
                     addSuffix: true,
                     locale: ptBR,
                   })}

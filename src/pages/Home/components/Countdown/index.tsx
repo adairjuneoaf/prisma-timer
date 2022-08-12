@@ -23,7 +23,7 @@ export const Countdown: React.FC = () => {
 
     if (activeCycle) {
       interval = setInterval(() => {
-        const secondsPassed = differenceInSeconds(new Date(), activeCycle.startedDate)
+        const secondsPassed = differenceInSeconds(new Date(), new Date(activeCycle.startedDate))
 
         if (secondsPassed >= totalSeconds) {
           completedCurrentCycle(activeCycle.id)

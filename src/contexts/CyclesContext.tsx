@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useReducer } from 'react'
+import { createContext, PropsWithChildren, useEffect, useReducer } from 'react'
 import { v4 as UUID } from 'uuid'
 import { ActionTypes } from '../reducers/cycles/actions'
 
@@ -22,16 +22,43 @@ type NewCycleFormData = {
 export const CyclesContext = createContext({} as CyclesContextProps)
 
 export const CyclesContextProvider = ({ children }: PropsWithChildren) => {
-  const [CyclesState, dispatch] = useReducer(CyclesReducer, {
-    cycles: [],
-    activeCycleId: null,
-  })
+  const [CyclesState, dispatch] = useReducer(
+    CyclesReducer,
+    {
+      cycles: [],
+      activeCycleId: null,
+    },
+    () => {
+      const storedStateAsJSON = localStorage.getItem('@prisma-timer-v1.0.0:cycles-list')
+
+      const value = storedStateAsJSON ? JSON.parse(storedStateAsJSON) : {}
+
+      return value
+    },
+  )
 
   const { cycles, activeCycleId } = CyclesState
+
+  useEffect(() => {
+    if (activeCycleId !== null) {
+      dispatch({
+        type: ActionTypes.INTERRUPT_CYCLE,
+        payload: {
+          cycleId: activeCycleId,
+        },
+      })
+    }
+  }, [])
 
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
   const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
+
+  useEffect(() => {
+    const stateJSON = JSON.stringify(CyclesState)
+
+    localStorage.setItem('@prisma-timer-v1.0.0:cycles-list', stateJSON)
+  }, [CyclesState])
 
   const createNewCycle = (cycleData: NewCycleFormData) => {
     const cycle: Cycle = {
